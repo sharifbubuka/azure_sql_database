@@ -1,0 +1,67 @@
+// PROTECTING DATA AT REST, for more info, see https://justinboyerwriter.com/2017/07/29/developers-guide-cryptography-basics/
+const crypto = require('crypto'); 
+// Password for the key
+const password = 'Good strong password for key';
+// First we get the encryptin algorithm to use, preferably aes-256-cbc
+const algorithm = 'aes-256-cbc';
+// Secondly, we generate an encryption key which uses a salt
+const salt = crypto.randomBytes(32); 
+const key = crypto.scryptSync(password, salt, 32); // This is synchronous
+// Create the  initialization vector
+const size = crypto.randomBytes(16);
+const cipher = crypto.createCipheriv(algorithm, key, size);
+
+// Encrypting data
+const ssn = '111-000-0000';
+// Encytped version
+const ssn_encrypted = cipher.update(ssn, 'utf8', 'hex'); 
+// Run console.log(ssn_encrypted);
+
+// Decrypting data
+const decipher = crypto.createDecipheriv(algorithm, key, size);
+// Decrypted version
+const decrypted = decipher.update(ssn_encrypted, 'hex', 'utf8');
+decrypted += decipher.final('utf8');
+// Run console.log(decrypted);
+
+
+// How to protect the encryption key
+//-> Use a robust key management system (KMS) such as
+Amazon Web Service
+Key Management Service
+Azure Key Vault
+Vault (Open Source)
+
+
+// PROTECTING DATA IN TRANSIT, ASYMETRIC CRYPTOGRAPHY
+const crypto = require('crypto');
+// User 1 made
+const sally = crypto.createDiffieHellman(2048); // This number should be 
+// large enough in asymetric cryptography
+// Generate sally key
+const sallyKeys = sally.generateKeys();
+// User 2 made, connected to user 1
+const bob = crypto.createDiffieHellman(sally.getPrime(), sally.getGenerator());
+// Generate bob key
+const bobKey = bob.generateKeys();
+// Create secrets for both end users
+const sallySecret = sally.computeSecret(bobKey);
+const bobKey = bob.computeSecret(sallyKeys);
+// To view the secrets on the terminal?
+console.log(sallySecret.toString('hex'));
+console.log(bobSecret.toString('hex'));
+ 
+// Using HMACS
+const crypto = require('crypto');
+// Create HMAC
+const hmac = crypto.createHmac('sha256', 'a secret');
+// Both parties should have access to the secret
+// Add data to be hashed, you can read a file or anything from the database
+hmac.update('some data to hash');
+const hashed = hmac.digest('hex');
+// To view it on the terminal
+console.log(hashed); // This is the vale the other party needs to open this message
+
+// USING TWO FACTOR AUTHENTICATION
+
+ 
